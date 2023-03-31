@@ -1,0 +1,138 @@
+Sub Stock_analysis()
+
+
+    Dim headers() As Variant
+    Dim ws As Worksheet
+    Dim wb As Workbook
+
+    Set wb = ActiveWorkbook
+
+    For Each ws In ThisWorkbook.Worksheets
+        
+        ws.Range("I1").Value = "Ticker"
+        ws.Range("J1").Value = "Yearly Change"
+        ws.Range("K1").Value = "Percent Change"
+        ws.Range("L1").Value = "Total Stock Volume"
+        ws.Range("O2").Value = "Greatest % Increase"
+        ws.Range("O3").Value = "Greatest % Decrease"
+        ws.Range("O4").Value = "Greatest Total Volume"
+        ws.Range("P1").Value = "Ticker"
+        ws.Range("Q1").Value = "Value"
+
+    Next ws
+    
+        ' Set variables
+        Dim v_count As Double
+        Dim ticker As String
+        Dim p_change As Double
+        Dim y_change As Double
+        Dim year_open As Double
+        Dim year_close As Double
+        Dim s_table As Integer
+        
+        
+        Dim greatest_increase As Double
+        Dim greatest_decrease As Double
+        Dim greates_vol As Long
+        Dim total_vol As Long
+        Dim greatest_increase_t As String
+        Dim greatest_decrease_t As String
+        Dim greatest_vol_t As String
+        Dim total_vol_t As String
+        Dim tt As Double
+        
+
+    For Each ws In ThisWorkbook.Worksheets
+        ws.Activate
+        
+        'set values to variables
+        v_count = 0
+        s_table = 2
+        greatest_increase = 0
+        greatest_decrease = 0
+        greatest_vol = 0
+        tt = Cells(2, 3).Value
+        
+        ' Set loop for stocks
+        For i = 2 To Cells(Rows.Count, 1).End(xlUp).Row
+            
+            
+            ' check to see if next cell is the same ticker, if it is not then..
+            If Cells(i + 1, 1).Value <> Cells(i, 1).Value Then
+
+            ' set ticker name
+            ticker = Cells(i, 1).Value
+            
+            ' set year close
+            year_close = Cells(i, 6)
+            
+            
+            'add to v_count
+            ''v_count = v_count + Cells(i, 7)
+            v_count = Application.Sum(Range(Cells(i - 250, 7), Cells(i, 7)))
+            
+            ' calculate percent change & yearly change
+            y_change = (year_close - tt)
+            p_change = (y_change / tt)
+            
+            
+            ' print ticker name in the ticker column
+            Range("I" & s_table).Value = ticker
+        
+            ' Print yearly change
+            Range("J" & s_table).Value = y_change
+            
+                ' Apply condition for yearly change column
+                If y_change > 0 Then
+                    Range("J" & s_table).Interior.ColorIndex = 4 'green
+                Else
+                    Range("J" & s_table).Interior.ColorIndex = 3 'red
+                End If
+            
+            
+            'print percent change
+            Range("K" & s_table).Value = p_change
+        
+            'print total stock volume
+            Range("L" & s_table).Value = v_count
+            
+            
+            ' Find greatest increase, greatest decrease, and greatest volume
+            
+            If p_change > greatest_increase Then
+                greatest_increase = p_change
+                greatest_increase_t = ticker
+            ElseIf p_change < greatest_decrease Then
+                greatest_decrease = p_change
+                greatest_decrease_t = ticker
+                
+            End If
+            
+            If v_count > greatest_vol Then
+                greatest_vol = v_count
+                greatest_vol_t = ticker
+            End If
+            
+            'add one to shift row in column
+            s_table = s_table + 1
+            tt = Cells(i + 1, 3).Value
+            
+            End If
+            
+        Next i
+        
+
+        ' print results for greatest increase, greatest decrease, and greatest volume
+        Range("P2").Value = greatest_increase_t
+        Range("Q2").Value = greatest_increase
+        Range("P3").Value = greatest_decrease_t
+        Range("Q3").Value = greatest_decrease
+        Range("P4").Value = greatest_vol_t
+        Range("Q4").Value = greatest_vol
+        Columns("A:S").AutoFit
+        
+    Next ws
+            
+         
+        
+End Sub
